@@ -36,13 +36,13 @@ cp2k_exe=/panasas/scratch/grp-alexeyak/brendan/cp2k_install/cp2k-7.1/exe/local/c
 gaussian_exe=g16
 dftb_exe=/util/academic/dftbplus/19.1-arpack/bin/dftb+
 
-path=/panasas/scratch/grp-alexeyak/brendan/tutorial/cp2k/step2
+path=/panasas/scratch/grp-alexeyak/brendan/Tutorials_CP2K/step2
 res=$path/res
 MO_images_directory=$path/MO_images_directory
 path_to_tcl_file=$path/cube.tcl
 
-min_band=15
-max_band=35
+min_band=10
+max_band=40
 ks_orbital_homo_index=28
 states_to_be_plotted=0
 

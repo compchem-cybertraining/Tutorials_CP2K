@@ -132,7 +132,7 @@ def fit_data( xdata, ydata, function_option ):
 
     # gaussian-exponential
     elif function_option == 3:
-        popt, pcov = curve_fit( gaussian_exponential, xdata, ydata)#, bounds=([0.0, 0.0, 0.0, ydata[0]-0.001], [np.inf, np.inf, np.inf, ydata[0]+0.001]))
+        popt, pcov = curve_fit( gaussian_exponential, xdata, ydata, bounds=([0.0, 0.0, 0.0, ydata[0]-0.001], [np.inf, np.inf, np.inf, ydata[0]+0.001]))
         a, tau1, tau2, E0 = popt
         for t in range( len(xdata) ):
             ydata_fit.append( gaussian_exponential( xdata[t], *popt ) )
@@ -173,7 +173,7 @@ def fit_data( xdata, ydata, function_option ):
 
 ####################
 # 2. Set paramters for reading / sorting the data
-namd_length = 9
+namd_length = 50
 dt = 1.0 #fs
 decoherence_options       = ["fssh","ida","msdm","bllz"]
 decoherence_options_names = ["FSSH","ID-A","mSDM","BLLZ"]
@@ -243,7 +243,6 @@ for decoherence_option in decoherence_options:
 
                             # mixed_sd dynamics
                             elif basis_option_count == 1:
-                                #y = float( namd_data_line[ 70 ] ) - float( namd_data_line[4] )
                                 y = float( namd_data_line[ 34 ] ) - float( namd_data_line[4] )
                                 if y < 0:
                                     y = 0.00

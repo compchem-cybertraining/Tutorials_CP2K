@@ -37,9 +37,9 @@ es_software = "cp2k"
 #waveplot_input_template = "waveplot_in.hsd"
 #es_software = "dftb+"
 
-istep = 90
-fstep = 99 
-njobs = 4
+istep = 150
+fstep = 200 
+njobs = 10
 
 for njob in range( njobs ):
 

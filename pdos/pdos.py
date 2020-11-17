@@ -168,8 +168,8 @@ def convolve_pdos(cp2k_log_file: str, time_step: int, sigma: float, coef: float,
 ####################################################################################################################################################
 #============================= Main part starts from here and we use the function above combined with multiprocessing =============================#
 
-pdos_type = "orbital_resolved"
-#pdos_type = "atom_resolved"
+#pdos_type = "orbital_resolved"
+pdos_type = "atom_resolved"
 #thermal=True
 thermal=False
 

@@ -1,5 +1,6 @@
 from libra_py import data_stat
 from libra_py import CP2K_methods
+from libra_py.workflows.nbra import step2_many_body 
 import os
 import sys
 import multiprocessing as mp
@@ -9,31 +10,55 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import math
 import time
-#plt.switch_backend('agg')
 
-# from libra_py import CP2K_methods
+
+
+
+###############################################################
+"""
+  1. Number of states, tolerance, curr_step
+"""
 params = { }
-params["tolerance"] = 0.0
 params["number_of_states"] = 10
-params["isUKS"] = 0
+params["tolerance"] = 0.0
+thermal = False #True
+
+
+
+
+
+
+###############################################################
+"""
+  2. Extract CI-like coefficients
+"""
+
+if thermal == True:
+    logfiles = glob.glob('all_logfiles/*.log')
+
+elif thermal == False:
+    logfiles = glob.glob('../tddft/*.log')
+
 ci_coeffs = []
-
-#logfiles = glob.glob('../tddft/*.log')
-logfiles = glob.glob('all_logfiles/*.log')
-
 for logfile in logfiles:
     params.update({"logfile_name": logfile})
-    excitation_energies, ci_basis, ci_coefficients, spin_components = CP2K_methods.read_cp2k_tddfpt_log_file(params)
-    for j in range(len(ci_coefficients)):
-        for k in range(len(ci_coefficients[j])):
-            ci_coefficients[j][k] = ci_coefficients[j][k]**2
-    ci_coeffs.append(ci_coefficients)
+    excitation_energies, ci_basis_raw, ci_coefficients_raw_unnorm, spin_components = CP2K_methods.read_cp2k_tddfpt_log_file( params ) 
+    ci_coefficients_raw_norm = step2_many_body.normalize_ci_coefficients(ci_coefficients_raw_unnorm)
+    for j in range(len(ci_coefficients_raw_norm)):
+        for k in range(len(ci_coefficients_raw_norm[j])):
+            ci_coefficients_raw_norm[j][k] = ci_coefficients_raw_norm[j][k]**2
+    ci_coeffs.append(ci_coefficients_raw_norm)
 
-print(ci_coeffs)
-print(len(ci_coeffs))
-print(len(ci_coeffs[0]))
 
-# The goal is to get a list of len nstates. Each element is a list of lists of size nsteps
+
+
+
+
+###############################################################
+"""
+  3. Post process the Ci-like coefficients, plot
+"""
+
 nsteps = len(ci_coeffs)
 nstates = params["number_of_states"]
 nsds = 5
@@ -43,8 +68,14 @@ coeffs_error = []
 
 plt.figure(num=None, figsize=(3.21, 2.41), dpi=300, edgecolor='black', frameon=True)
 plt.subplot(1,1,1)
-#plt.title("Adamantane, 0 K", fontsize=10)
-plt.title("Adamantane, 300 K", fontsize=10)
+
+
+if thermal == True:
+    plt.title("Adamantane, 300 K", fontsize=10)
+else:
+    plt.title("Adamantane, 0 K", fontsize=10)
+
+
 plt.ylim(0,1)
 plt.xlabel('State Index', fontsize=10)
 plt.ylabel('< c$_{i}^2$ >',   fontsize=10)
@@ -96,6 +127,8 @@ for state in range(nstates):
             plt.errorbar( state+1, mb_coeff_avg, yerr=coeffs_error[state][sd], linestyle="None", color='black')
  
 plt.tight_layout()
-#plt.savefig('Adamantane_0K.png', dpi=300)
-plt.savefig('Adamantane_300K.png', dpi=300)
+if thermal == True:
+    plt.savefig('Adamantane_300K.png', dpi=300)
+else:
+    plt.savefig('Adamantane_0K.png', dpi=300)
 

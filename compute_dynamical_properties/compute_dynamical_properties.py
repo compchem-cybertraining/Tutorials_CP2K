@@ -27,9 +27,9 @@ params["data_set_paths"] = []
 params["data_set_paths"].append(absolute_path+"/../step3/res_mb_sp/")
 params["Hvib_re_prefix"] = "Hvib_ci_"; params["Hvib_re_suffix"] = "_re"
 params["Hvib_im_prefix"] = "Hvib_ci_"; params["Hvib_im_suffix"] = "_im"
-params["nfiles"]         = 9
+params["nfiles"]         = 50
 params["nstates"]        = 11 # total number of electronic states
-params["init_times"]     = [90]
+params["init_times"]     = [150]
 params["active_space"]   = list(range(params["nstates"])) # indexing is from 0!
 # Include HOMO and up to the last electronic state
 hvib_mb = step4.get_Hvib2(params)
@@ -44,9 +44,9 @@ params["data_set_paths"] = []
 params["data_set_paths"].append(absolute_path+"/../step3/res_mb_sp/")
 params["Hvib_re_prefix"] = "Hvib_sd_"; params["Hvib_re_suffix"] = "_re"
 params["Hvib_im_prefix"] = "Hvib_sd_"; params["Hvib_im_suffix"] = "_im"
-params["nfiles"]         = 9
-params["nstates"]        = 23 # total number of electronic states
-params["init_times"]     = [90]
+params["nfiles"]         = 50
+params["nstates"]        = 30 # total number of electronic states
+params["init_times"]     = [150]
 params["active_space"]   = list(range(params["nstates"])) # indexing is from 0!
 # Include HOMO and up to the last electronic state
 hvib_mixed_sd = step4.get_Hvib2(params)
@@ -101,7 +101,7 @@ def compute_tnacs( hvib ):
 #####################
 # 3. Divide up into sub-trajectories. These are to be consdiered our independent nuclear sub-trajectories
 subtraj_time_info = [
-                      [0, 0], #[0, 500]
+                      [0, 0],
                     ]
 
 nsubtrajs   = len(subtraj_time_info)
@@ -151,6 +151,7 @@ def myfunc( subtraj ):
     plt.subplot(1,1,1)
     plt.xlabel('Time, fs',   fontsize=10)
     plt.ylabel('Energy, eV', fontsize=10)
+    plt.ylim(0,13)
     for mb_index in range( nstates_mb ):
         plt.plot(md_time, mb_energies[mb_index]*units.au2ev, label="", linewidth=1)
     plt.tight_layout()
@@ -176,10 +177,11 @@ def myfunc( subtraj ):
     plt.subplot(1,1,1)
     plt.xlabel('Time, fs',   fontsize=10)
     plt.ylabel('Energy, eV', fontsize=10)
+    plt.ylim(0,13)
     for sd_index in range( nstates_mixed_sd ):
         plt.plot(md_time, mixed_sd_energies[sd_index]*units.au2ev, label="", linewidth=1)
     plt.tight_layout()
-    plt.savefig("SD_Energies_"+str(subtraj)+".png", dpi=300)
+    plt.savefig("SP_Energies_"+str(subtraj)+".png", dpi=300)
 
     plt.figure(num=None, figsize=(3.21, 2.41), dpi=300, edgecolor='black', frameon=True)
     plt.subplot(1,1,1)
@@ -195,7 +197,7 @@ def myfunc( subtraj ):
     cb = plt.colorbar(label="meV")
     cb.ax.tick_params(labelsize=10)
     plt.tight_layout()
-    plt.savefig("SD_tnacs.png")
+    plt.savefig("SP_tnacs.png")
 
 
 

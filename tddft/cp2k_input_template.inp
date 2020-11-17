@@ -30,6 +30,11 @@
 
   &DFT
 
+    &POISSON
+       PERIODIC none
+       POISSON_SOLVER wavelet
+    &END POISSON
+
     &PRINT
       &PDOS SILENT
         COMPONENTS T

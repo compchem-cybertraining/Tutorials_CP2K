@@ -107,7 +107,7 @@ res_dir = "res_mb_sp"
 os.mkdir(res_dir)
 
 path = os.getcwd()
-res_dir_mb   = path+"/../../../../step2/res/"
+res_dir_mb   = path+"/../../../step2/res/"
 data_dim     = 62 # rows in E_ks
 active_space = range(0,int(data_dim/2)) # alpha channel only here #range(data_dim)
 istep = 150 # initial step
@@ -130,20 +130,9 @@ St_ks = data_read.get_data_sets(params)
 St_ks[0][-2].show_matrix()
 #sys.exit(0)
 
-step3.apply_normalization( S_ks[0], St_ks[0] )
-step3.apply_phase_correction( St_ks[0] )
+step3.apply_orthonormalization_general( S_ks[0], St_ks[0] )
+step3.apply_phase_correction_general( St_ks[0] )
 #sys.exit(0)
-
-# Out put sac basis data
-for step in range( fstep - istep - 1 ):
-    energy_ks = E_ks[step] + E_ks[
-    nacs_ks   = 0.5j/dt * ( St_sac[step] - St_sac[step].H() )
-    hvib_sac   = energy_sac - nacs_sac
-    hvib_sac.real().show_matrix("%s/Hvib_sac_%d_re" % (res_dir,   istep+step))
-    hvib_sac.imag().show_matrix("%s/Hvib_sac_%d_im" % (res_dir,   istep+step))
-    St_sac[step].real().show_matrix("%s/St_sac_%d_re" % (res_dir, istep+step))
-#sys.exit(0)
-
 
 ks_homo_index = 28
 min_band_ks   = 28 
@@ -157,7 +146,6 @@ sd_basis_states_unique = [
                             # Phi 2 
                             [-2, 1],
                                                      ]    
-
 
 # 2.3. Reindex the single-particle excitations into a format expected by Libra
 #sd_states_reindexed = step2_many_body.reindex_cp2k_sd_states( ks_homo_index, ks_orbital_indicies, sd_basis_states_unique, sd_format=2 )
@@ -217,6 +205,7 @@ coeffs = [
 
 T_energy_ordered = make_T_matricies_energy_ordered( reindex_nsteps, coeffs )  
 T_energy_ordered[0].show_matrix()
+#sys.exit(0)
 
 E_sac_step, E_sac  = [], []
 St_sac = []

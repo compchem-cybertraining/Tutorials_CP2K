@@ -1,0 +1,98 @@
+#!/bin/sh
+###SBATCH --partition=scavenger  --qos=scavenger
+###SBATCH --clusters=faculty
+#SBATCH --partition=debug  --qos=debug
+#SBATCH --clusters=ub-hpc
+#SBATCH --constraint=CPU-Gold-6130
+#SBATCH --time=1:00:00
+#SBATCH --nodes=1
+#SBATCH --requeue
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=128000
+#SBATCH --mail-user=bsmith24@buffalo.edu
+
+# Uncomment this part for use in CCR
+
+# echo "SLURM_JOBID="$SLURM_JOBID
+# echo "SLURM_JOB_NODELIST="$SLURM_JOB_NODELIST
+# echo "SLURM_NNODES="$SLURM_NNODES
+# echo "SLURMTMPDIR="$SLURMTMPDIR
+# echo "working directory="$SLURM_SUBMIT_DIR
+# 
+# module load cuda/6.5
+# module load vmd/v1.9
+# module load openmpi/3.0.3/gcc-7.3.0
+# export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
+# 
+# if [ -n "$SLURM_CPUS_PER_TASK" ]; then
+#   omp_threads=$SLURM_CPUS_PER_TASK
+# else
+#   omp_threads=1
+# fi
+# export OMP_NUM_THREADS=$omp_threads
+
+
+nprocs=25
+
+cp2k_exe=cp2k.psmp
+gaussian_exe=g16
+dftb_exe=/util/academic/dftbplus/19.1-arpack/bin/dftb+
+
+path=/full/path/to/step2
+res=$path/res
+MO_images_directory=$path/MO_images_directory
+
+# Just in case you want to plot the MO images with VMD
+path_to_tcl_file=$path/cube.tcl
+
+min_band=132
+max_band=141
+ks_orbital_homo_index=136
+states_to_be_plotted=0
+
+job_init_step=
+nsteps_this_job=
+njob=
+
+
+python -c "from libra_py.workflows.nbra import step2_many_body
+params = { }
+
+params[\"es_software\"]=\"cp2k\"
+params[\"es_software_input_template\"]=\"cp2k_input_template.inp\"
+params[\"es_software_exe\"]=\"$cp2k_exe\"
+
+params[\"nprocs\"]=\"$nprocs\"
+params[\"project_name\"]=\"cspbi3_cubic\"
+params[\"trajectory_xyz_filename\"]=\"cspbi3_cubic.xyz\"
+params[\"logfile_directory\"]=\"logfiles\"
+params[\"number_of_states\"]=5
+params[\"tolerance\"]=0.0
+params[\"isUKS\"]=0
+params[\"min_band\"]=int(\"$min_band\")
+params[\"max_band\"]=\"$max_band\"
+params[\"ks_orbital_homo_index\"]=\"$ks_orbital_homo_index\"
+params[\"istep\"]=\"$job_init_step\"
+params[\"nsteps_this_job\"]=\"$nsteps_this_job\"
+params[\"njob\"]=\"$njob\"
+params[\"res_dir\"]=\"$res\"
+params[\"dt\"]=41.341374575751
+
+params[\"completion_level\"]=0
+
+params[\"do_phase_corrections\"]=1
+params[\"perform_state_reordering\"]=1
+params[\"do_state_reordering\"]=2
+params[\"state_reordering_alpha\"]=0.0
+
+params[\"do_cube_visualization\"]=0
+params[\"path_to_tcl_file\"] = \"$path_to_tcl_file\"
+params[\"states_to_be_plotted\"]=\"$states_to_be_plotted\"
+params[\"MO_images_directory\"] = \"$MO_images_directory\"
+
+print( params )
+
+step2_many_body.run_step2_many_body( params )
+"
+

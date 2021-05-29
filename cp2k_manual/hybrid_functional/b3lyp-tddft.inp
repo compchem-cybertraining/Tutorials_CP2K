@@ -1,0 +1,158 @@
+ &GLOBAL
+   PRINT_LEVEL  MEDIUM
+   PROJECT_NAME BA2_PbI4_B3LYP
+   RUN_TYPE  ENERGY
+ &END GLOBAL
+ &FORCE_EVAL
+  METHOD  QS
+  &PROPERTIES
+    &TDDFPT
+       NSTATES     20            # number of excited states
+       MAX_ITER    200           # maximum number of Davidson iterations
+       CONVERGENCE [eV] 1.0e-5   # convergence on maximum energy change between iterations
+       &MGRID
+          NGRIDS 16
+          CUTOFF 500 # separate cutoff for TDDFPT calc
+       &END
+       ! Only in case you have a tdwfn file from previous calculations
+       !RESTART     .TRUE.
+       !WFN_RESTART_FILE_NAME RESTART.tdwfn
+    &END TDDFPT
+  &END PROPERTIES
+  &DFT
+    UKS .FALSE. 
+    BASIS_SET_FILE_NAME BASIS_MOLOPT
+    BASIS_SET_FILE_NAME BASIS_ADMM
+    BASIS_SET_FILE_NAME BASIS_ADMM_MOLOPT
+    POTENTIAL_FILE_NAME GTH_POTENTIALS
+    WFN_RESTART_FILE_NAME BA2_PbI4_PBE-RESTART.wfn 
+    &MGRID
+      NGRIDS 16
+      CUTOFF 500
+      REL_CUTOFF 50
+    &END MGRID
+    &QS
+      METHOD GPW
+      EPS_DEFAULT 1.000E-14
+    &END QS
+    &POISSON
+      PERIODIC XYZ 
+      PSOLVER PERIODIC
+    &END
+    &SCF
+      &DIAGONALIZATION ON
+      &END DIAGONALIZATION
+      &MIXING
+        ALPHA 0.3
+        METHOD BROYDEN_MIXING
+        NBROYDEN 8
+      &END MIXING
+      EPS_SCF 1.0E-6
+      SCF_GUESS RESTART
+      MAX_SCF  50
+      ADDED_MOS 50
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL
+        &LIBXC
+          FUNCTIONAL XC_HYB_GGA_XC_B3LYP
+        &END LIBXC
+      &END XC_FUNCTIONAL
+      &HF
+        &SCREENING
+          EPS_SCHWARZ 1.0E-10
+        &END
+        !&MEMORY
+        ! This is the maximum memory for each processor in MBi, I just comment it but
+        ! you can obtain it through computing the memory you ask in the slurm file
+        ! divided by the number of processors.
+        !  MAX_MEMORY  10000
+        !  EPS_STORAGE_SCALING 0.1
+        !&END MEMORY
+        FRACTION 0.20
+      &END
+      ! In CP2K versions lower than v7, this part is required for TDDFT calculations
+      &XC_GRID
+        XC_DERIV SPLINE2_SMOOTH
+      &END XC_GRID
+      &VDW_POTENTIAL
+         POTENTIAL_TYPE PAIR_POTENTIAL 
+         &PAIR_POTENTIAL
+            PARAMETER_FILE_NAME dftd3.dat
+            TYPE DFTD3
+            REFERENCE_FUNCTIONAL PBE
+            R_CUTOFF [angstrom] 16
+         &END
+      &END VDW_POTENTIAL
+    &END XC
+    &AUXILIARY_DENSITY_MATRIX_METHOD
+      METHOD BASIS_PROJECTION
+      ADMM_PURIFICATION_METHOD NONE
+    &END
+    &PRINT
+      &MULLIKEN OFF
+      &END
+      &HIRSHFELD OFF
+      &END
+      &MO_CUBES
+        NHOMO -1  ! All HOMOs
+        NLUMO -1  ! All LUMOs
+        WRITE_CUBE F
+      &END
+    &END PRINT
+  &END DFT
+  &SUBSYS
+
+    &CELL
+      A   8.4280004501         0.0000000000         0.0000000000
+      B   0.0000000000         8.9860000610         0.0000000000
+      C   0.0000000000         0.0000000000        26.2329998016
+      PERIODIC  XYZ 
+    &END CELL
+
+    &TOPOLOGY
+      COORD_FILE_NAME optimized_unit_cell.xyz
+      COORD_FILE_FORMAT XYZ
+      ! Only in case you use cif file
+      !&GENERATE
+      !  REORDER T
+      !&END
+    &END
+
+    &KIND  Cs
+      BASIS_SET DZVP-MOLOPT-SR-GTH 
+      BASIS_SET AUX_FIT cFIT9
+      POTENTIAL GTH-BLYP-q9 
+    &END KIND
+    &KIND Pb
+      BASIS_SET DZVP-MOLOPT-SR-GTH 
+      BASIS_SET AUX_FIT cFIT6
+      POTENTIAL GTH-BLYP-q4
+    &END KIND
+    &KIND I 
+      BASIS_SET  DZVP-MOLOPT-SR-GTH 
+      BASIS_SET AUX_FIT cFIT6
+      POTENTIAL  GTH-BLYP-q7
+    &END KIND
+    &KIND H
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      BASIS_SET AUX_FIT cFIT3
+      POTENTIAL  GTH-BLYP-q1
+    &END KIND
+    &KIND C 
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      BASIS_SET AUX_FIT cFIT3
+      POTENTIAL  GTH-BLYP-q4
+    &END KIND
+    &KIND O 
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      BASIS_SET AUX_FIT cFIT3
+      POTENTIAL  GTH-BLYP-q6
+    &END KIND
+    &KIND N
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      BASIS_SET AUX_FIT cFIT3
+      POTENTIAL  GTH-BLYP-q5
+    &END KIND
+  &END SUBSYS
+ &END FORCE_EVAL

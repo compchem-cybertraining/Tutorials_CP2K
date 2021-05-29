@@ -63,8 +63,8 @@ for njob in range( njobs ):
     os.chdir("wd/job"+str(njob)+"/")
 
     print('3- Now we have changed directory to :', os.getcwd(),'To submit job', njob)
-    os.mkdir("cubefiles")
-    os.mkdir("logfiles")
+    #os.mkdir("cubefiles")
+    #os.mkdir("logfiles")
     
     print("4- The initial step for the job ", njob, " is: ", job_init_step, 'with final step: ', job_final_step)
     print("5- nsteps_this_job is: ", nsteps_this_job)
@@ -106,6 +106,7 @@ for njob in range( njobs ):
             f.write( submit_template_file[i] )            
  
     os.system("sbatch submit_"+str(njob)+".slm")
+    # just in case you want to run it without using the submit file through bash
     #os.system("sh submit_"+str(njob)+".slm")
 
     print("6- Now submitting the job in folder:  ", os.getcwd())

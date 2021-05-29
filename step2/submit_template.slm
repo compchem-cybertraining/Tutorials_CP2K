@@ -43,6 +43,7 @@ path_to_tcl_file=$path/cube.tcl
 
 min_band=10
 max_band=40
+# We do not need this one and it is for building the basis
 ks_orbital_homo_index=28
 states_to_be_plotted=0
 
@@ -50,6 +51,14 @@ job_init_step=
 nsteps_this_job=
 njob=
 
+# The commented lines are for the master branch (v 4.9.0, 4.9.1)
+# It is better not to use them and use the followng with the newer versions or the devel branch
+# since it is optimized and the data will not be lost if the job is suddenly terminated
+# Computation of the NACs in both single-particle and many-body can be done in a post-processing
+# fashion and independently after all the jobs are done.
+
+# A complete explanation of all the following parameters can be found in this link:
+# https://github.com/AkimovLab/Project_Libra_CP2K/tree/master/Cd33Se33/step2
 
 python -c "from libra_py.workflows.nbra import step2_many_body
 params = { }
@@ -62,24 +71,24 @@ params[\"nprocs\"]=\"$nprocs\"
 params[\"project_name\"]=\"c10h16\"
 params[\"trajectory_xyz_filename\"]=\"c10h16-pos-1.xyz\"
 params[\"logfile_directory\"]=\"logfiles\"
-params[\"number_of_states\"]=10
-params[\"tolerance\"]=0.0
+#params[\"number_of_states\"]=10
+#params[\"tolerance\"]=0.0
 params[\"isUKS\"]=0
 params[\"min_band\"]=int(\"$min_band\")
 params[\"max_band\"]=\"$max_band\"
-params[\"ks_orbital_homo_index\"]=\"$ks_orbital_homo_index\"
+#params[\"ks_orbital_homo_index\"]=\"$ks_orbital_homo_index\"
 params[\"istep\"]=\"$job_init_step\"
 params[\"nsteps_this_job\"]=\"$nsteps_this_job\"
 params[\"njob\"]=\"$njob\"
 params[\"res_dir\"]=\"$res\"
-params[\"dt\"]=41.341374575751
+#params[\"dt\"]=41.341374575751
 
 params[\"completion_level\"]=0
 
-params[\"do_phase_corrections\"]=1
-params[\"perform_state_reordering\"]=1
-params[\"do_state_reordering\"]=2
-params[\"state_reordering_alpha\"]=0.0
+#params[\"do_phase_corrections\"]=1
+#params[\"perform_state_reordering\"]=1
+#params[\"do_state_reordering\"]=2
+#params[\"state_reordering_alpha\"]=0.0
 
 params[\"do_cube_visualization\"]=0
 params[\"path_to_tcl_file\"] = \"$path_to_tcl_file\"

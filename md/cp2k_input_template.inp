@@ -27,7 +27,37 @@
     &QS
       EPS_DEFAULT 1.0E-16
     &END QS
-
+    
+    &PRINT
+      ! turn off printing the charges on each atom unless you need it.
+      ! this will decrease the size of the log file
+      &MULLIKEN OFF
+      &END
+      &HIRSHFELD OFF
+      &END
+      ! printing out the pdos for each element and each MD step
+      ! this will append all the pdos for an element in one file
+      ! for all the MD steps
+      &PDOS SILENT
+        COMPONENTS T
+        NLUMO  -1
+        APPEND .TRUE.
+        &EACH
+          MD 1
+        &END
+      &END PDOS
+      ! This can be useful to print out just the energies of 
+      ! the KS orbitals. You can visualize the evolution of the energy levels 
+      ! by extracting these values using read_energies_from_cp2k_md_log_file function
+      ! from CP2K_methods.py in libra_py folder.
+      &MO_CUBES
+        NLUMO -1
+        NHOMO -1
+        WRITE_CUBE .FALSE.
+        !STRIDE 2 2 2
+      &END
+    &END PRINT
+    
     &SCF
       SCF_GUESS RESTART
       EPS_SCF 1.0E-6

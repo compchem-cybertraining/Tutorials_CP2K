@@ -14,8 +14,10 @@
        &MGRID
           CUTOFF 400 # separate cutoff for TDDFPT calc
        &END
-
-       RESTART     .TRUE.
+       ! If the name of the tdwfn file is not correct then the CP2K will crash.
+       ! Make sure you have the correct file name. Another thing is that whether
+       ! it works or not depends on the version of CP2K.
+       RESTART     .FALSE.
        WFN_RESTART_FILE_NAME RESTART.tdwfn
 
     &END TDDFPT

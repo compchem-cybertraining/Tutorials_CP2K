@@ -67,8 +67,8 @@ params[\"nprocs\"]=\"$nprocs\"
 params[\"project_name\"]=\"cspbi3_cubic\"
 params[\"trajectory_xyz_filename\"]=\"cspbi3_cubic.xyz\"
 params[\"logfile_directory\"]=\"logfiles\"
-params[\"number_of_states\"]=5
-params[\"tolerance\"]=0.0
+#params[\"number_of_states\"]=5
+#params[\"tolerance\"]=0.0
 params[\"isUKS\"]=0
 params[\"min_band\"]=int(\"$min_band\")
 params[\"max_band\"]=\"$max_band\"
@@ -77,14 +77,14 @@ params[\"istep\"]=\"$job_init_step\"
 params[\"nsteps_this_job\"]=\"$nsteps_this_job\"
 params[\"njob\"]=\"$njob\"
 params[\"res_dir\"]=\"$res\"
-params[\"dt\"]=41.341374575751
+#params[\"dt\"]=41.341374575751
 
 params[\"completion_level\"]=0
 
-params[\"do_phase_corrections\"]=1
-params[\"perform_state_reordering\"]=1
-params[\"do_state_reordering\"]=2
-params[\"state_reordering_alpha\"]=0.0
+#params[\"do_phase_corrections\"]=1
+#params[\"perform_state_reordering\"]=1
+#params[\"do_state_reordering\"]=2
+#params[\"state_reordering_alpha\"]=0.0
 
 params[\"do_cube_visualization\"]=0
 params[\"path_to_tcl_file\"] = \"$path_to_tcl_file\"

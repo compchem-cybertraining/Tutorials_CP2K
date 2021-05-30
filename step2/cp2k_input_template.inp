@@ -15,7 +15,7 @@
           CUTOFF 400 # separate cutoff for TDDFPT calc
        &END
 
-       RESTART     .TRUE.
+       RESTART     .FALSE.
        WFN_RESTART_FILE_NAME RESTART.tdwfn
 
     &END TDDFPT

@@ -11,36 +11,32 @@ import os
 
 from libra_py import CP2K_methods
 from libra_py import Gaussian_methods
-from libra_py import DFTB_methods
 from libra_py.workflows.nbra import step2_many_body
 
 ########################### creating directories ###############################
-
-os.system("rm -r wd")
-os.mkdir('wd')
-os.system("rm -r res")
-os.mkdir('res')
+try:
+    os.system("rm -r wd")
+    os.mkdir('wd')
+    os.system("rm -r res")
+    os.mkdir('res')
+except:
+    sys.exit(0)
 
 ######################### creating and submitting jobs #########################
-trajectory_xyz_file = "c10h16-pos-1.xyz"
+# For MD with time step of 1 fs
+trajectory_xyz_file        = "MD_BA2PbI4_dt1fs-pos-1.xyz"
 
-# CP2K
+# For MD with time step of 0.1 fs
+#trajectory_xyz_file        = "MD_BA2PbI4_dt0.1fs-pos-1.xyz"
+
 es_software_input_template = "cp2k_input_template.inp"
 es_software = "cp2k"
-
-# Gaussian
 #es_software_input_template = "gaussian_input_template.gjf"
 #es_software = "gaussian"
-
-# dftb+
-#es_software_input_template = "dftb_input_template.hsd"
-#waveplot_input_template = "waveplot_in.hsd"
-#es_software = "dftb+"
-
-istep = 150
-fstep = 200 
-njobs = 10
-
+istep = 0
+fstep = 1#3000 
+# since it is a test for cube overlap convergence we use only one job
+njobs = 1#600
 for njob in range( njobs ):
 
     job_init_step, job_final_step = step2_many_body.curr_and_final_step_job( istep, fstep, njobs, njob )
@@ -53,11 +49,6 @@ for njob in range( njobs ):
 
     elif es_software.lower() == "gaussian":
         Gaussian_methods.gaussian_distribute( job_init_step, job_final_step, nsteps_this_job, trajectory_xyz_file, es_software_input_template, njob )
-
-    elif es_software.lower() == "dftb+":
-        DFTB_methods.dftb_distribute( job_init_step, job_final_step, nsteps_this_job, trajectory_xyz_file, es_software_input_template, waveplot_input_template, njob )
-
-    #sys.exit(0)
 
     print('2- Finished distributing for job ',njob,'\nNow we are in directory', os.getcwd())
     os.chdir("wd/job"+str(njob)+"/")
@@ -105,9 +96,8 @@ for njob in range( njobs ):
         else:
             f.write( submit_template_file[i] )            
  
-    os.system("sbatch submit_"+str(njob)+".slm")
-    # just in case you want to run it without using the submit file through bash
-    #os.system("sh submit_"+str(njob)+".slm")
+    #os.system("sbatch submit_"+str(njob)+".slm")
+    os.system("sh submit_"+str(njob)+".slm")
 
     print("6- Now submitting the job in folder:  ", os.getcwd())
 

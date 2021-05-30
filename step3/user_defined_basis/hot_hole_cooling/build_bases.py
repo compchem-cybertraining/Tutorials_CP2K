@@ -52,6 +52,8 @@ res_dir = "res_mb_sp"
 os.mkdir(res_dir)
 
 path = os.getcwd()
+# The error `Matrix S_aa not invertible...` is because it has not read the data correctly,
+#  just make sure you are setting the res directory correcly.
 res_dir_mb   = path+"/../../../../step2/res/"
 data_dim     = 62 # rows in E_ks
 active_space = range(0,int(data_dim/2)) # alpha channel only here #range(data_dim)

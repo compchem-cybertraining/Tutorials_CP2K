@@ -16,7 +16,7 @@
           CUTOFF 100
        &END
 
-       RESTART     .TRUE.
+       RESTART     .FALSE.
        WFN_RESTART_FILE_NAME RESTART.tdwfn
 
     &END TDDFPT

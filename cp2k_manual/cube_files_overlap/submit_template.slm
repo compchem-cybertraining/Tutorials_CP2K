@@ -12,7 +12,8 @@
 #SBATCH --mem=128000
 #SBATCH --mail-user=bsmith24@buffalo.edu
 
-# Uncomment this part for use in CCR
+# Uncomment this part for use in CCR,
+# for now we want to test it as a simple shell script for one job
 
 # echo "SLURM_JOBID="$SLURM_JOBID
 # echo "SLURM_JOB_NODELIST="$SLURM_JOB_NODELIST

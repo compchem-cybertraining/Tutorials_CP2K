@@ -35,6 +35,7 @@ es_software = "cp2k"
 #es_software = "gaussian"
 istep = 0
 fstep = 1#3000 
+# since it is a test for cube overlap convergence we use only one job
 njobs = 1#600
 for njob in range( njobs ):
 
@@ -53,8 +54,8 @@ for njob in range( njobs ):
     os.chdir("wd/job"+str(njob)+"/")
 
     print('3- Now we have changed directory to :', os.getcwd(),'To submit job', njob)
-    os.mkdir("cubefiles")
-    os.mkdir("logfiles")
+    #os.mkdir("cubefiles")
+    #os.mkdir("logfiles")
     
     print("4- The initial step for the job ", njob, " is: ", job_init_step, 'with final step: ', job_final_step)
     print("5- nsteps_this_job is: ", nsteps_this_job)

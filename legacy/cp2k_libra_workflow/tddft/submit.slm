@@ -1,0 +1,37 @@
+#!/bin/sh
+#SBATCH --partition=debug  --qos=debug
+#SBATCH --clusters=ub-hpc
+#SBATCH --constraint=CPU-Gold-6130
+
+###SBATCH --partition=valhalla  --qos=valhalla
+###SBATCH --clusters=faculty
+###SBATCH --requeue
+
+#SBATCH --time=1:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=128000
+#SBATCH --mail-user=bsmith24@buffalo.edu
+echo "SLURM_JOBID="$SLURM_JOBID
+echo "SLURM_JOB_NODELIST="$SLURM_JOB_NODELIST
+echo "SLURM_NNODES="$SLURM_NNODES
+echo "SLURMTMPDIR="$SLURMTMPDIR
+echo "working directory="$SLURM_SUBMIT_DIR
+
+module load openmpi/3.0.3/gcc-7.3.0
+export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
+
+if [ -n "$SLURM_CPUS_PER_TASK" ]; then
+  omp_threads=$SLURM_CPUS_PER_TASK
+else
+  omp_threads=1
+fi
+export OMP_NUM_THREADS=$omp_threads
+
+nprocs=32
+cp2k_exe=/panasas/scratch/grp-alexeyak/brendan/cp2k_install/cp2k-7.1/exe/local/cp2k.popt
+
+mpirun -np $nprocs $cp2k_exe -i cp2k_input_template.inp -o out.log 
+
+

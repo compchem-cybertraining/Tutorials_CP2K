@@ -1,0 +1,115 @@
+&GLOBAL
+  PROJECT C3N4-QD
+  RUN_TYPE ENERGY
+  PRINT_LEVEL MEDIUM
+&END GLOBAL
+&FORCE_EVAL
+  METHOD Quickstep
+
+   &PROPERTIES
+    &TDDFPT
+       NSTATES     5             # number of excited states
+       MAX_ITER    200           # maximum number of Davidson iterations
+       CONVERGENCE [eV] 1.0e-5   # convergence on maximum energy change between iterations
+       &MGRID
+          CUTOFF 300 # separate cutoff for TDDFPT calc
+       &END
+
+       RESTART     .FALSE.
+       WFN_RESTART_FILE_NAME RESTART.tdwfn
+
+    &END TDDFPT
+  &END PROPERTIES
+
+  &PRINT
+    &FORCES
+    &END
+    &TOTAL_NUMBERS  ON
+    &END TOTAL_NUMBERS
+  &END PRINT
+
+  &DFT
+
+    &POISSON
+       PERIODIC XYZ
+       POISSON_SOLVER PERIODIC
+    &END POISSON
+
+    &PRINT
+      &PDOS SILENT
+        COMPONENTS T
+        NLUMO  -1
+      &END PDOS
+      &MO_CUBES
+        NLUMO -1
+        NHOMO 20
+        WRITE_CUBE .TRUE.
+        STRIDE 2 2 2
+      &END
+    &END PRINT
+
+    BASIS_SET_FILE_NAME BASIS_MOLOPT
+    POTENTIAL_FILE_NAME POTENTIAL
+    WFN_RESTART_FILE_NAME RESTART.wfn
+
+    &MGRID
+      CUTOFF 300
+      REL_CUTOFF 60
+    &END MGRID
+
+    &QS
+      EPS_DEFAULT 1.0E-16
+    &END QS
+
+    &SCF
+      SCF_GUESS RESTART
+      EPS_SCF 1.0E-6
+      MAX_SCF 300
+
+      ADDED_MOS 40
+      &DIAGONALIZATION
+        ALGORITHM STANDARD
+      &END DIAGONALIZATION
+      &MIXING
+        METHOD BROYDEN_MIXING
+        ALPHA 0.5
+        BETA  0.5
+        NBROYDEN 8
+      &END MIXING
+    &END SCF
+
+    &XC
+      &XC_FUNCTIONAL PBE
+      &END XC_FUNCTIONAL
+    &END XC
+
+  &END DFT
+
+  &SUBSYS
+
+    &KIND C
+      ELEMENT C
+      BASIS_SET ORB DZVP-MOLOPT-GTH
+      POTENTIAL GTH-PBE-q4
+    &END KIND
+    &KIND H
+      ELEMENT H
+      BASIS_SET ORB DZVP-MOLOPT-GTH
+      POTENTIAL GTH-PBE-q1
+    &END KIND
+    &KIND N
+      BASIS_SET  DZVP-MOLOPT-GTH
+      POTENTIAL  GTH-PBE-q5
+    &END KIND
+
+    &CELL
+      ABC 35.0 35.0 35.0
+      PERIODIC NONE
+    &END CELL
+    &TOPOLOGY
+      COORD_FILE_NAME coord.xyz
+      COORD_FILE_FORMAT XYZ
+    &END
+  &END SUBSYS
+&END FORCE_EVAL
+

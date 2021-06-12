@@ -1,0 +1,2 @@
+rm MB*
+rm SP*

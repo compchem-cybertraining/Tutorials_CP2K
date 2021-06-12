@@ -1,0 +1,102 @@
+#!/bin/sh
+###SBATCH --partition=scavenger  --qos=scavenger
+###SBATCH --clusters=faculty
+###SBATCH --partition=debug  --qos=debug
+#SBATCH --partition=general-compute  --qos=general-compute
+#SBATCH --clusters=ub-hpc
+#SBATCH --constraint=CPU-Gold-6130
+#SBATCH --time=1:00:00
+#SBATCH --nodes=1
+#SBATCH --requeue
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=128000
+#SBATCH --mail-user=bsmith24@buffalo.edu
+echo "SLURM_JOBID="$SLURM_JOBID
+echo "SLURM_JOB_NODELIST="$SLURM_JOB_NODELIST
+echo "SLURM_NNODES="$SLURM_NNODES
+echo "SLURMTMPDIR="$SLURMTMPDIR
+echo "working directory="$SLURM_SUBMIT_DIR
+
+module load cuda/6.5
+module load vmd/v1.9
+module load openmpi/3.0.3/gcc-7.3.0
+export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
+
+if [ -n "$SLURM_CPUS_PER_TASK" ]; then
+  omp_threads=$SLURM_CPUS_PER_TASK
+else
+  omp_threads=1
+fi
+export OMP_NUM_THREADS=$omp_threads
+
+nprocs=32
+
+cp2k_exe=/panasas/scratch/grp-alexeyak/brendan/cp2k_install/cp2k-7.1/exe/local/cp2k.popt
+gaussian_exe=g16
+dftb_exe=/util/academic/dftbplus/19.1-arpack/bin/dftb+
+
+path=/panasas/scratch/grp-alexeyak/brendan/Tutorials_CP2K/step2
+res=$path/res
+MO_images_directory=$path/MO_images_directory
+path_to_tcl_file=$path/cube.tcl
+
+min_band=10
+max_band=40
+# We do not need this one and it is for building the basis
+ks_orbital_homo_index=28
+states_to_be_plotted=0
+
+job_init_step=
+nsteps_this_job=
+njob=
+
+# The commented lines are for the master branch (v 4.9.0, 4.9.1)
+# It is better not to use them and use the followng with the newer versions or the devel branch
+# since it is optimized and the data will not be lost if the job is suddenly terminated
+# Computation of the NACs in both single-particle and many-body can be done in a post-processing
+# fashion and independently after all the jobs are done.
+
+# A complete explanation of all the following parameters can be found in this link:
+# https://github.com/AkimovLab/Project_Libra_CP2K/tree/master/Cd33Se33/step2
+
+python -c "from libra_py.workflows.nbra import step2_many_body
+params = { }
+
+params[\"es_software\"]=\"cp2k\"
+params[\"es_software_input_template\"]=\"cp2k_input_template.inp\"
+params[\"es_software_exe\"]=\"$cp2k_exe\"
+
+params[\"nprocs\"]=\"$nprocs\"
+params[\"project_name\"]=\"c10h16\"
+params[\"trajectory_xyz_filename\"]=\"c10h16-pos-1.xyz\"
+params[\"logfile_directory\"]=\"logfiles\"
+#params[\"number_of_states\"]=10
+#params[\"tolerance\"]=0.0
+params[\"isUKS\"]=0
+params[\"min_band\"]=int(\"$min_band\")
+params[\"max_band\"]=\"$max_band\"
+#params[\"ks_orbital_homo_index\"]=\"$ks_orbital_homo_index\"
+params[\"istep\"]=\"$job_init_step\"
+params[\"nsteps_this_job\"]=\"$nsteps_this_job\"
+params[\"njob\"]=\"$njob\"
+params[\"res_dir\"]=\"$res\"
+#params[\"dt\"]=41.341374575751
+
+params[\"completion_level\"]=0
+
+#params[\"do_phase_corrections\"]=1
+#params[\"perform_state_reordering\"]=1
+#params[\"do_state_reordering\"]=2
+#params[\"state_reordering_alpha\"]=0.0
+
+params[\"do_cube_visualization\"]=0
+params[\"path_to_tcl_file\"] = \"$path_to_tcl_file\"
+params[\"states_to_be_plotted\"]=\"$states_to_be_plotted\"
+params[\"MO_images_directory\"] = \"$MO_images_directory\"
+
+print( params )
+
+step2_many_body.run_step2_many_body( params )
+"
+

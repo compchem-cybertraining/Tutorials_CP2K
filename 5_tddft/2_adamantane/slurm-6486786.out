@@ -1,0 +1,7 @@
+SLURM_JOBID=6486786
+SLURM_JOB_NODELIST=cpn-p27-16
+SLURM_NNODES=1
+SLURMTMPDIR=/scratch/6486786
+working directory=/projects/academic/cyberwksp21/Instructors_material/alexeyak/cp2k/tddft
+ The MKL Libraries are in your library path. This is adequate for compiling and
+running most codes. Source $MKL/bin/mklvars.sh" for more features. 

@@ -1,0 +1,155 @@
+ &GLOBAL
+   PRINT_LEVEL  MEDIUM
+   PROJECT_NAME C3N4-QD
+   RUN_TYPE  GEO_OPT
+   !For huge cutoff this keyword is required
+   EXTENDED_FFT_LENGTHS .TRUE.
+ &END GLOBAL
+
+ &FORCE_EVAL
+   METHOD  QS
+
+   &DFT
+    BASIS_SET_FILE_NAME BASIS_MOLOPT
+    POTENTIAL_FILE_NAME POTENTIAL 
+    MULTIPLICITY 1
+
+    &MGRID
+     NGRIDS 6
+     CUTOFF 1200
+    &END MGRID
+
+    &QS
+      METHOD GPW
+      EPS_DEFAULT 1.000E-14
+    &END QS
+
+    &SCF
+      &DIAGONALIZATION
+        ALGORITHM DAVIDSON
+      &END
+
+      &SMEAR
+        METHOD FERMI_DIRAC
+      &END
+
+      &MIXING
+        ALPHA 0.3
+        METHOD BROYDEN_MIXING
+        NBROYDEN 8
+      &END MIXING
+      EPS_SCF 1.0E-8
+      SCF_GUESS ATOMIC
+      MAX_SCF  100
+      ADDED_MOS 10
+      ! Only in case you need outer scf for convergence
+      !&OUTER_SCF  T
+      !  EPS_SCF    1.0E-06
+      !  MAX_SCF 20
+      !&END OUTER_SCF
+    &END SCF
+
+    &XC
+      &XC_FUNCTIONAL
+         &PBE
+         &END PBE
+      &END XC_FUNCTIONAL
+      ! In CP2K versions lower than v7, this part is required for TDDFT calculations
+      &XC_GRID
+        XC_DERIV SPLINE2_SMOOTH
+      &END XC_GRID
+      &VDW_POTENTIAL
+         POTENTIAL_TYPE PAIR_POTENTIAL 
+         &PAIR_POTENTIAL
+            PARAMETER_FILE_NAME dftd3.dat
+            TYPE DFTD3
+            REFERENCE_FUNCTIONAL PBE
+            R_CUTOFF [angstrom] 16
+         &END
+      &END VDW_POTENTIAL
+    &END XC
+
+    &PRINT
+      &MULLIKEN OFF
+      &END
+      &HIRSHFELD OFF
+      &END
+      &MO_CUBES
+        NHOMO 3
+        NLUMO 3
+        ! If the it is set to .TRUE. or T, it will print out the cube files
+        ! In this case it will only print all the HOMO energies and 3 LUMO energies
+        WRITE_CUBE F
+      &END
+      &PDOS
+        APPEND      .TRUE.
+        COMPONENTS  .TRUE.
+        NLUMO -1
+      &END PDOS
+    &END PRINT
+  &END DFT
+  &SUBSYS
+  
+    &CELL
+      A  25.0000000000         0.0000000000         0.0000000000
+      B   0.0000000000        25.0000000000         0.0000000000
+      C   0.0000000000         0.0000000000        10.0000000000
+      PERIODIC  NONE 
+    &END CELL
+
+    &TOPOLOGY
+      COORD_FILE_NAME c3n4.xyz
+      COORD_FILE_FORMAT XYZ
+      ! Only in case you use cif file
+      !&GENERATE
+      !  REORDER T
+      !&END
+    &END
+
+    &KIND H
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      POTENTIAL  GTH-PBE-q1
+    &END KIND
+    &KIND C 
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      POTENTIAL  GTH-PBE-q4
+    &END KIND
+    &KIND N
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      POTENTIAL  GTH-PBE-q5
+    &END KIND
+  &END SUBSYS
+ &END FORCE_EVAL
+
+
+&MOTION
+ &GEO_OPT
+   OPTIMIZER BFGS
+   MAX_ITER  550
+   MAX_DR    [bohr] 0.002
+   MAX_FORCE 3.000E-4
+   RMS_DR    [bohr] 0.002
+   RMS_FORCE 3.000E-4
+   &BFGS
+   &END
+ &END
+
+ &PRINT
+  &TRAJECTORY
+    &EACH
+      GEO_OPT 1
+    &END EACH
+  &END TRAJECTORY
+
+  &FORCES ON
+  &END FORCES
+  &RESTART
+    BACKUP_COPIES 1
+    &EACH
+      GEO_OPT 1
+    &END EACH
+  &END RESTART
+ &END PRINT
+
+&END
+

@@ -75,7 +75,7 @@ Now, the only thing that is left is to run the calculations by `python distribut
 ## Check the results
 
 The energies and MO overlaps are stored in sparse format to reduce the disk space usage. We use the `scipy.sparse` library to save and load the sparse files which 
-have the `npz` format. As an example, you can see the results in the `res` directory using the following commands in environments such as `python`, `ipython`, or Jupyter 
+are in `npz` format. As an example, you can see the results in the `res` directory using the following commands in environments such as `python`, `ipython`, or Jupyter 
 files:
 
 ```
@@ -109,11 +109,13 @@ The diagonal elements of the S matrix are:
 
 ```
 
-This can be used for all types of `npz` files, for example the energies.
-<<<<<<< HEAD:cp2k_libra_libint/Readme.md
+This can be used for all types of `npz` files, for example the energies. Also, note that the results are saved in 2-spinor format as follows:
 
-=======
->>>>>>> 3fac5ce526a2042a844ecc2edaa7f6559816a183:cp2k_libint_libra/Readme.md
+```
+    | S_aa   S_ab |
+S = |             |
+    | S_ba   S_bb |
+```
 
 
 

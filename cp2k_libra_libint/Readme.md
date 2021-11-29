@@ -110,7 +110,10 @@ The diagonal elements of the S matrix are:
 ```
 
 This can be used for all types of `npz` files, for example the energies.
+<<<<<<< HEAD:cp2k_libra_libint/Readme.md
 
+=======
+>>>>>>> 3fac5ce526a2042a844ecc2edaa7f6559816a183:cp2k_libint_libra/Readme.md
 
 
 

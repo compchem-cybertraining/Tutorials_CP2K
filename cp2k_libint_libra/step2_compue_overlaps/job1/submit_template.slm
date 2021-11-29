@@ -1,0 +1,19 @@
+#!/bin/sh
+###SBATCH --partition=scavenger  --qos=scavenger
+###SBATCH --clusters=faculty
+#SBATCH --partition=debug  --qos=debug
+#SBATCH --clusters=ub-hpc
+#SBATCH --constraint=CPU-Gold-6130
+#SBATCH --time=1:00:00
+#SBATCH --nodes=1
+#SBATCH --requeue
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=128000
+#SBATCH --mail-user=bsmith24@buffalo.edu
+
+# Here load whatever which is needed for running CP2K
+#module load cp2k
+
+python run.py
+

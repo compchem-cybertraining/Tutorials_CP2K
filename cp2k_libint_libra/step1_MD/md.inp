@@ -1,0 +1,141 @@
+ &GLOBAL
+   PRINT_LEVEL  MEDIUM
+   PROJECT_NAME lic-pbe
+   RUN_TYPE  MD
+ &END GLOBAL
+ &FORCE_EVAL
+  METHOD  QS
+  &DFT
+    UKS .TRUE. 
+    BASIS_SET_FILE_NAME BASIS_MOLOPT
+    POTENTIAL_FILE_NAME GTH_POTENTIALS
+    !WFN_RESTART_FILE_NAME BA2_PbI4_PBE-RESTART.wfn 
+    &MGRID
+      NGRIDS 16
+      CUTOFF 300
+      REL_CUTOFF 50
+    &END MGRID
+    &QS
+      METHOD GPW
+      EPS_DEFAULT 1.000E-14
+    &END QS
+    &POISSON
+      PERIODIC NONE ! XYZ
+      PSOLVER MT ! PERIODIC
+    &END
+    &SCF
+      &DIAGONALIZATION ON
+         ALGORITHM DAVIDSON
+      &END DIAGONALIZATION
+!      &OT
+!        MINIMIZER DIIS
+!        PRECONDITIONER FULL_SINGLE_INVERSE
+!      &END
+      &MIXING
+        ALPHA 0.3
+        METHOD BROYDEN_MIXING
+        NBROYDEN 8
+      &END MIXING
+      EPS_SCF 1.0E-6
+      SCF_GUESS ATOMIC
+      MAX_SCF  50
+      ADDED_MOS 50
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL
+        &PBE
+        &END PBE
+      &END XC_FUNCTIONAL
+      ! In CP2K versions lower than v7, this part is required for TDDFT calculations
+      &XC_GRID
+        XC_DERIV SPLINE2_SMOOTH
+      &END XC_GRID
+      &VDW_POTENTIAL
+         POTENTIAL_TYPE PAIR_POTENTIAL 
+         &PAIR_POTENTIAL
+            PARAMETER_FILE_NAME dftd3.dat
+            TYPE DFTD3
+            REFERENCE_FUNCTIONAL PBE
+            R_CUTOFF [angstrom] 16
+         &END
+      &END VDW_POTENTIAL
+    &END XC
+    &PRINT
+      &MULLIKEN OFF
+      &END
+      &HIRSHFELD OFF
+      &END
+!      &MO_MOLDEN ON
+!        FILENAME 
+!        NDIGITS 16
+!        &EACH
+!          QS_SCF 0
+!          !MD 1
+!        &END
+!      &END 
+    &END PRINT
+  &END DFT
+  &SUBSYS
+
+    &CELL
+      A  15.0 0.0 0.0
+      B  0.0 15.0 0.0
+      C  0.0 0.0 15.0
+      PERIODIC  NONE
+    &END CELL
+
+    &TOPOLOGY
+      COORD_FILE_NAME lic.xyz
+      COORD_FILE_FORMAT XYZ
+      &CENTER_COORDINATES T
+      &END
+      ! Only in case you use cif file
+      !&GENERATE
+      !  REORDER T
+      !&END
+    &END
+
+    &KIND Li
+      BASIS_SET  DZVP-MOLOPT-SR-GTH
+      POTENTIAL  GTH-PBE-q3
+    &END KIND
+    &KIND C 
+      BASIS_SET  DZVP-MOLOPT-GTH 
+      POTENTIAL  GTH-PBE-q4
+    &END KIND
+  &END SUBSYS
+ &END FORCE_EVAL
+
+&MOTION
+ &MD
+   ENSEMBLE NVT
+   TEMPERATURE [K] 300
+   TIMESTEP [fs] 1.0
+   STEPS 10
+   &THERMOSTAT
+     REGION GLOBAL
+     TYPE CSVR
+	 &CSVR
+	   TIMECON 16
+	 &END
+   &END THERMOSTAT
+ &END
+ &PRINT
+   &TRAJECTORY
+     &EACH
+       MD 1
+     &END EACH
+   &END TRAJECTORY
+   &VELOCITIES ON
+   &END VELOCITIES
+   &FORCES ON
+   &END FORCES
+   &RESTART
+     BACKUP_COPIES 1
+     &EACH
+       MD 1
+     &END EACH
+   &END RESTART
+ &END PRINT 
+&END 
+

@@ -103,7 +103,7 @@ As was mentioned, the rest of the procedure will use the XConfigure instructions
 
 ## 1. Compile dependent libraries
 
-### 1.1 Compile ELPA
+### 1.1 Compile `ELPA`
 
 `ELPA` can eficiently increase the speed of calculations. For compiling it you need to run the following commands:
 ```
@@ -127,9 +127,9 @@ make clean
 ```
 It wil install the library in the previous folder in `elpa`.
 
-### 1.2 Compile Libint
+### 1.2 Compile `Libint`
 
-To compile Libint we do exactly as above and in the configureation file we change the `-xCORE-AVX512` to `-xavx2`. The same is done for compilation of `Libxc`.
+To compile `Libint` we do exactly as above and in the configureation file we change the `-xCORE-AVX512` to `-xavx2`. The same is done for compilation of `Libxc`.
 ```
 cd cp2k-intel
 curl -s https://api.github.com/repos/cp2k/libint-cp2k/releases/latest \
@@ -147,7 +147,38 @@ make -j
 make install
 make distclean
 ```
+The compilation of `Libint` might take up to an hour so please wait until it gets completely done.
+### 1.3 Compile `Libxc`
 
-### 1.2 Compile Libxc
+The instructions for compiling the `Libxc` is the same as above but note that for CP2K-v8.2, we need `Libxc` with versions higher than 5.1.
+```
+wget --content-disposition --no-check-certificate https://www.tddft.org/programs/libxc/down.php?file=5.1.7/libxc-5.1.7.tar.gz
+tar xvf libxc-5.1.7.tar.gz
+cd libxc-5.1.7
+
+wget --content-disposition --no-check-certificate https://github.com/hfp/xconfigure/raw/master/configure-get.sh
+chmod +x configure-get.sh
+./configure-get.sh libxc
+# Change the configure-libxc-skx.sh file by replacing -xCORE-AVX512 to -xavx2.
+./configure-libxc-skx.sh
+make -j
+make install
+make distclean
+```
+### 1.4 Download `Libxsmm`
+
+For this step, you just need to download the `Libxsmm`. The compilation of this package will be done when trying to compile CP2K.
+```
+wget --content-disposition --no-check-certificate https://github.com/hfp/libxsmm/archive/1.16.1.tar.gz
+tar xvf 1.16.1.tar.gz
+```
+
+## 2. Compile CP2K
+
+Finally, we want to compile CP2K using the libraries that we compiled with `-xavx2` flag. Download CP2K:
+```
+git clone --recursive -b support/v8.2 https://github.com/cp2k/cp2k.git cp2k-8.2
+cd cp2k-8.2
+```
 
 

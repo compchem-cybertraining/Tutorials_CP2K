@@ -2,7 +2,9 @@
 
 
 Here are the instruction for installing the CP2K software using Intel Parallel Studio compilers and are 
-used for compiling the CP2K on UB-CCR cluster. 
+used for compiling the CP2K on UB-CCR cluster. Before going into main instructions, we use the instruction
+from [**XConfigure**](https://xconfigure.readthedocs.io/en/latest/cp2k/) for compilation using Intel Parallel Studio 20.2. XConfigure is very useful
+for configuration and generating the `make` files and we will apply our own changes to the files downloaded from XConfigure website.
 First, we need to figure out what is the architecture of the CPU type that we want 
 to run CP2K on. For example, the compilation might be successfully done on a node but 
 it does not run on another node through submission of a CP2K job. Usually, the error is
@@ -80,3 +82,14 @@ Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
 ```
 
 The `Flags` shows us what type of architecture the CPU supports. For example, the _Valhalla_ does not support the `avx512` while the _general-compute_ node support it. In fact, the _general-compute_ supports more flags than _Valhalla_. 
+
+Therefore, we have to find the proper flags when we want to compile a software. Since we want to run the compiled CP2K on _Valhalla_ we need to install every dependent library 
+such as `FFTW3`, `Libint`, `Libxc`, and any other like `ELPA` using the flags that it supports it.
+
+The instructions here are 
+
+
+
+
+
+

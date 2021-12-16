@@ -12,12 +12,7 @@ it does not run on another node through submission of a CP2K job. Usually, the e
 `SIGILL Illegal instruction` when trying to run the CP2K compiled on a different node. This
 can happen for many softwares, including VASP, although the instructions can also be used for that but it is not our focus at the moment.
 In order to find the CPU architecture of a node, you can submit a job that runs the command `lscpu` or run a Python
-script that prints the CPU type:
-
-```
-import platform
-print(platform.processor())
-```
+script that prints the CPU type `python -c "import platform; print(platform.processor())"`.
 
 Here we use `lscpu` to figure out what are the CPU architectures. As an example, the _Valhalla_ compute node prints the 
 following data:

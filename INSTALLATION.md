@@ -5,12 +5,12 @@ Here are the instruction for installing the CP2K software using Intel Parallel S
 used for compiling the CP2K on UB-CCR cluster. Before going into main instructions, it should be noted that we use the instruction
 from [**XConfigure**](https://xconfigure.readthedocs.io/en/latest/cp2k/) for compilation using Intel Parallel Studio 20.2. XConfigure is very useful
 for configuration and generating the `make` files and we will apply our own changes to the files downloaded from XConfigure so that it 
-can be run our target nodes.
+can be run on our target node.
 First, we need to figure out what is the architecture of the CPU type that we want 
-to run CP2K on. For example, the compilation might be successfully done on a node but 
-it does not run on another node through submission of a CP2K job. Usually, the error is
+to run CP2K on. The reason is that, the compilation might be successfully done on one node but 
+it does not run on another node through submission of a CP2K job. Usually, the error comes with 
 `SIGILL Illegal instruction` when trying to run the CP2K compiled on a different node. This
-can happen for many softwares, including VASP but it is not our focus at the moment.
+can happen for many softwares, including VASP, although the instructions can also be used for that but it is not our focus at the moment.
 In order to find the CPU architecture of a node, you can submit a job that runs the command `lscpu` or run a Python
 script that prints the CPU type:
 
@@ -51,7 +51,7 @@ NUMA node1 CPU(s):     1,3,5,7,9,11
 Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb invpcid_single ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm xsaveopt cqm_llc cqm_occup_llc dtherm ida arat pln pts md_clear spec_ctrl intel_stibp flush_l1d
 ```
 
-while for _general-compute_ node we get the following:
+while for _general-compute_ node we get:
 
 ```
 Architecture:          x86_64
@@ -87,7 +87,7 @@ In fact, the _general-compute_ supports more flags than _Valhalla_. So, if we co
 job on _Valhall_ we will get `SIGILL Illegal instructions` error and the job will be terminated since it does not support `avx512`.
 
 Therefore, we have to find the proper flags when we want to compile a software. Since we want to run the compiled CP2K on _Valhalla_ as well we need to install
-every dependent library including `FFTW3`, `Libint`, `Libxc`, and any other like `ELPA` using the flags that it supports it.
+every dependent library including `FFTW3`, `Libint`, `Libxc`, and any other like `ELPA` using the flags that it supports it. 
 
 Now, we go to the main instructions. You can load Intel libraries including mpi and mkl using the following commands:
 ```
@@ -173,6 +173,9 @@ wget --content-disposition --no-check-certificate https://github.com/hfp/libxsmm
 tar xvf 1.16.1.tar.gz
 ```
 
+Hopefully, the `FFTW3` is with the Intel MKL library. So, we do not need to resintall that but as a hint for GNU compilers, you need to add the `--enable-avx2` flag when 
+running the configurations for FFTW3 and remove the `--enable-avx512` if it exists (this is just an example for when your CPU does not support `avx512`).
+
 ## 2. Compile CP2K
 
 Finally, we want to compile CP2K using the libraries that we compiled with `-xavx2` flag. Download CP2K:
@@ -226,9 +229,8 @@ echo "SLURM_JOB_NODELIST="$SLURM_JOB_NODELIST
 echo "SLURM_NNODES="$SLURM_NNODES
 echo "SLURMTMPDIR="$SLURMTMPDIR
 echo "working directory="$SLURM_SUBMIT_DIR
-source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/bin/compilervars.sh intel64
-source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/mpi/intel64/bin/mpivars.sh
-source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/mkl/bin/mklvars.sh intel64
-mpirun -np 9 -genv OMP_NUM_THREADS=1 -genv OMP_PLACES=threads exe/Linux-x86-64-intelx/cp2k.psmp -i tests/QS/regtest-hybrid-1/H2O-hybrid-b3lyp.inp -o out-hybrid.log
+
+module load intel/20.2
+mpirun -np 9 -genv OMP_NUM_THREADS=1 -genv OMP_PLACES=threads /path/to/cp2k-intel/cp2k-8.2/exe/Linux-x86-64-intelx/cp2k.psmp -i tests/QS/regtest-hybrid-1/H2O-hybrid-b3lyp.inp -o out-hybrid.log
 ```
 

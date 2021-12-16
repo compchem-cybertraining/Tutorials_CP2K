@@ -209,5 +209,26 @@ LIBINTROOT=/path/to/cp2k-intel/libint/intel-skx \
 LIBXCROOT=/path/to/cp2k-intel/libxc/intel-skx \
 ELPAROOT=/path/to/cp2k-intel/elpa/intel-skx-omp
 ```
-The code will be compiled with `-xavx2` flag and you after compilation you can test and run it on the target node which in here was _Valhalla_.
+The code will be compiled with `-xavx2` flag and you after compilation you can test and run it on the target node which in here was _Valhalla_. The submit file for 
+running calculations is as follows which performs a hybrid functional calculation with B3LYP for water molecule.
+```
+#!/bin/sh
+#SBATCH --partition=valhalla  --qos=valhalla
+#SBATCH --clusters=faculty
+#SBATCH --time=1:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=9
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=78000
+###SBATCH --mail-user=mshakiba@buffalo.edu
+echo "SLURM_JOBID="$SLURM_JOBID
+echo "SLURM_JOB_NODELIST="$SLURM_JOB_NODELIST
+echo "SLURM_NNODES="$SLURM_NNODES
+echo "SLURMTMPDIR="$SLURMTMPDIR
+echo "working directory="$SLURM_SUBMIT_DIR
+source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/bin/compilervars.sh intel64
+source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/mpi/intel64/bin/mpivars.sh
+source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/mkl/bin/mklvars.sh intel64
+mpirun -np 9 -genv OMP_NUM_THREADS=1 -genv OMP_PLACES=threads exe/Linux-x86-64-intelx/cp2k.psmp -i tests/QS/regtest-hybrid-1/H2O-hybrid-b3lyp.inp -o out-hybrid.log
+```
 

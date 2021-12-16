@@ -180,5 +180,34 @@ Finally, we want to compile CP2K using the libraries that we compiled with `-xav
 git clone --recursive -b support/v8.2 https://github.com/cp2k/cp2k.git cp2k-8.2
 cd cp2k-8.2
 ```
+Then, download the arch files from XConfigure:
+```
+cd arch
+wget https://github.com/hfp/cp2k/raw/master/arch/Linux-x86-64-intelx.arch
+wget https://github.com/hfp/cp2k/raw/master/arch/Linux-x86-64-intelx.popt
+wget https://github.com/hfp/cp2k/raw/master/arch/Linux-x86-64-intelx.psmp
+wget https://github.com/hfp/cp2k/raw/master/arch/Linux-x86-64-intelx.sopt
+wget https://github.com/hfp/cp2k/raw/master/arch/Linux-x86-64-intelx.ssmp
+cd ..
+```
+Now, there is one more thing left to do. The same as above change the file `arch/Linux-x86-64-intelx.arch` by finding and adding the `xavx2` to `TARGET`:
+```
+    else ifeq (2,$(AVX))
+      TARGET := -march=core-avx2
 
+# replace the TARGET
+
+    else ifeq (2,$(AVX))
+      TARGET := -xavx2
+
+```
+Save the arch file and start compiling:
+```
+rm -rf exe obj lib
+make -j 12 ARCH=Linux-x86-64-intelx VERSION=psmp  AVX=2 \
+LIBINTROOT=/path/to/cp2k-intel/libint/intel-skx \
+LIBXCROOT=/path/to/cp2k-intel/libxc/intel-skx \
+ELPAROOT=/path/to/cp2k-intel/elpa/intel-skx-omp
+```
+The code will be compiled with `-xavx2` flag and you after compilation you can test and run it on the target node which in here was _Valhalla_.
 

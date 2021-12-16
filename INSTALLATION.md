@@ -2,9 +2,10 @@
 
 
 Here are the instruction for installing the CP2K software using Intel Parallel Studio compilers and are 
-used for compiling the CP2K on UB-CCR cluster. Before going into main instructions, we use the instruction
+used for compiling the CP2K on UB-CCR cluster. Before going into main instructions, it should be noted that we use the instruction
 from [**XConfigure**](https://xconfigure.readthedocs.io/en/latest/cp2k/) for compilation using Intel Parallel Studio 20.2. XConfigure is very useful
-for configuration and generating the `make` files and we will apply our own changes to the files downloaded from XConfigure website.
+for configuration and generating the `make` files and we will apply our own changes to the files downloaded from XConfigure so that it 
+can be run our target nodes.
 First, we need to figure out what is the architecture of the CPU type that we want 
 to run CP2K on. For example, the compilation might be successfully done on a node but 
 it does not run on another node through submission of a CP2K job. Usually, the error is
@@ -81,15 +82,72 @@ NUMA node1 CPU(s):     1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31
 Flags:                 fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch epb cat_l3 cdp_l3 invpcid_single intel_ppin intel_pt ssbd mba ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts pku ospke md_clear spec_ctrl intel_stibp flush_l1d
 ```
 
-The `Flags` shows us what type of architecture the CPU supports. For example, the _Valhalla_ does not support the `avx512` while the _general-compute_ node support it. In fact, the _general-compute_ supports more flags than _Valhalla_. 
+The `Flags` shows us what type of architecture the CPU supports. For example, the _Valhalla_ does not support the `avx512` while the _general-compute_ node support it. 
+In fact, the _general-compute_ supports more flags than _Valhalla_. So, if we compile the CP2K on _general-compute_ node using the flags for `avx512` and we submit a 
+job on _Valhall_ we will get `SIGILL Illegal instructions` error and the job will be terminated since it does not support `avx512`.
 
-Therefore, we have to find the proper flags when we want to compile a software. Since we want to run the compiled CP2K on _Valhalla_ we need to install every dependent library 
-such as `FFTW3`, `Libint`, `Libxc`, and any other like `ELPA` using the flags that it supports it.
+Therefore, we have to find the proper flags when we want to compile a software. Since we want to run the compiled CP2K on _Valhalla_ as well we need to install
+every dependent library including `FFTW3`, `Libint`, `Libxc`, and any other like `ELPA` using the flags that it supports it.
 
-The instructions here are 
+Now, we go to the main instructions. You can load Intel libraries including mpi and mkl using the following commands:
+```
+source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/bin/compilervars.sh intel64
+source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/mpi/intel64/bin/mpivars.sh
+source /util/academic/intel/20.2/compilers_and_libraries_2020.2.254/linux/mkl/bin/mklvars.sh intel64
+```
+Other alternatives are through `module load` which dependent on the cluster type, it might be different. On UB-CCR this can be done using
+```
+module load intel/20.2
+```
+As was mentioned, the rest of the procedure will use the XConfigure instructions. Now, you can make a directory named `cp2k-intel` and do the rest of the procedure.
 
+## 1. Compile dependent libraries
 
+### 1.1 Compile ELPA
 
+`ELPA` can eficiently increase the speed of calculations. For compiling it you need to run the following commands:
+```
+cd cp2k-intel
+wget --content-disposition --no-check-certificate https://www.cp2k.org/static/downloads/elpa-2020.11.001.tar.gz
+tar xvf elpa-2020.11.001.tar.gz
+cd elpa-2020.11.001
+wget --content-disposition --no-check-certificate https://github.com/hfp/xconfigure/raw/master/configure-get.sh
+chmod +x configure-get.sh
+./configure-get.sh elpa
+```
+Before running the configuration files downloaded from XConfigure, we need to make some changes to them. This will be used for all of the libraries that
+we want to compile. In the file `configure-elpa-skx-omp.sh`, change the `TARGET="-xCORE-AVX512 -qopt-zmm-usage=high"` to `TARGET="-xavx2 -qopt-zmm-usage=high"`. 
+Remember this procedure for other configurations of other libraries as well. Now, do the following:
+```
+./configure-elpa-skx-omp.sh
+# Compile with 12 processors
+make -j 12
+make install
+make clean
+```
+It wil install the library in the previous folder in `elpa`.
 
+### 1.2 Compile Libint
+
+To compile Libint we do exactly as above and in the configureation file we change the `-xCORE-AVX512` to `-xavx2`. The same is done for compilation of `Libxc`.
+```
+cd cp2k-intel
+curl -s https://api.github.com/repos/cp2k/libint-cp2k/releases/latest \
+| grep "browser_download_url" | grep "lmax-6" \
+| sed "s/..*: \"\(..*[^\"]\)\".*/url \1/" \
+| curl -LOK-
+tar xvf libint-v2.6.0-cp2k-lmax-6.tgz
+cd libint-v2.6.0-cp2k-lmax-6
+wget --content-disposition --no-check-certificate https://github.com/hfp/xconfigure/raw/master/configure-get.sh
+chmod +x configure-get.sh
+./configure-get.sh libint
+# Change the configure-libint-skx.sh file by replacing -xCORE-AVX512 to -xavx2.
+./configure-libint-skx.sh
+make -j
+make install
+make distclean
+```
+
+### 1.2 Compile Libxc
 
 

@@ -169,7 +169,7 @@ tar xvf 1.16.1.tar.gz
 ```
 
 Hopefully, the `FFTW3` is with the Intel MKL library. So, we do not need to resintall that but as a hint for GNU compilers, you need to add the `--enable-avx2` flag when 
-running the configurations for FFTW3 and remove the `--enable-avx512` if it exists (this is just an example for when your CPU does not support `avx512`).
+running the configurations for `FFTW3` and remove the `--enable-avx512` if it exists (this is just an example for when your CPU does not support `avx512`).
 
 ## 2. Compile CP2K
 

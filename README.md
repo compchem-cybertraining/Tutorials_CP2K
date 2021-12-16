@@ -60,4 +60,6 @@ which will eventually be migrated to the main folder here.
 We highly welcome improving the functionality of the input files in this repository. 
 So, please feel free to share your inputs and timings with us if you used these inputs.
 
+## 3. CP2K Installation
 
+The instructions on how the CP2K is compiled with Intel Parallel Studio can be found in [this link](https://github.com/compchem-cybertraining/Tutorials_CP2K/blob/master/INSTALLATION.md).

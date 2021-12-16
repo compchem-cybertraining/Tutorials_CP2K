@@ -168,7 +168,7 @@ wget --content-disposition --no-check-certificate https://github.com/hfp/libxsmm
 tar xvf 1.16.1.tar.gz
 ```
 
-Hopefully, the `FFTW3` is with the Intel MKL library. So, we do not need to resintall that but as a hint for GNU compilers, you need to add the `--enable-avx2` flag when 
+Hopefully, the `FFTW3` is with the Intel MKL library. So, we do not need to resintall that but as a hint for GNU compilers (`gcc`, `g++`, or `gfortran`), you need to add the `--enable-avx2` flag when 
 running the configurations for `FFTW3` and remove the `--enable-avx512` if it exists (this is just an example for when your CPU does not support `avx512`).
 
 ## 2. Compile CP2K
@@ -228,4 +228,7 @@ echo "working directory="$SLURM_SUBMIT_DIR
 module load intel/20.2
 mpirun -np 9 -genv OMP_NUM_THREADS=1 -genv OMP_PLACES=threads /path/to/cp2k-intel/cp2k-8.2/exe/Linux-x86-64-intelx/cp2k.psmp -i tests/QS/regtest-hybrid-1/H2O-hybrid-b3lyp.inp -o out-hybrid.log
 ```
+
+
+_**Note:**_ There are also some other alternatives for compilation too. This includes compiling everything on the target node but you need to add the `-xHost` flag when configuring the libraries using Intel compilers. The `-xHost` is equivalent to the `-march=native` for GNU compilers.
 
